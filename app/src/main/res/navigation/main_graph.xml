@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:app="http://schemas.android.com/apk/res-auto"
+            xmlns:tools="http://schemas.android.com/tools" android:id="@+id/nav_graph" app:startDestination="@id/userListFragment">
+    <fragment android:id="@+id/userListFragment" android:name="com.kiryanov.githubapp.ui.user_list.UserListFragment"
+              android:label="UserListFragment">
+        <action android:id="@+id/action_userListFragment_to_userInfoFragment" app:destination="@id/userInfoFragment"
+        />
+    </fragment>
+    <fragment android:id="@+id/userInfoFragment" android:name="com.kiryanov.githubapp.ui.user_info.UserInfoFragment"
+              android:label="UserInfoFragment">
+        <argument android:name="login" app:argType="string"/>
+    </fragment>
+</navigation>
