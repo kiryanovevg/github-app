@@ -9,14 +9,11 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.functions.Action
 import io.reactivex.schedulers.Schedulers
-import kotlin.reflect.KFunction2
 
 class UserDataSource(
-    private val request: KFunction2<
-            @ParameterName(name = "since") Long,
-            @ParameterName(name = "perPage") Int,
-            Single<List<User>>>,
-    private val toUserId: Long
+    private val repository: Repository,
+    private val toUserId: Long,
+    private val query: String
 ) : ItemKeyedDataSource<Long, User>() {
 
     var initialState: ((NetworkState) -> Unit)? = null
@@ -34,16 +31,16 @@ class UserDataSource(
     }
 
     private fun setRetryAction(action: Action?) {
-        if (action == null) retryCompletable = null
-        else retryCompletable = Completable.fromAction(action)
+        retryCompletable = action?.let { Completable.fromAction(it) }
     }
 
     override fun loadInitial(params: LoadInitialParams<Long>, callback: LoadInitialCallback<User>) {
-        val since = params.requestedInitialKey ?: throw IllegalArgumentException("requestedInitialKey not added")
         val size = params.requestedLoadSize
+        val since = params.requestedInitialKey
+            ?: throw IllegalArgumentException("requestedInitialKey not added")
 
         initialState?.invoke(NetworkState.LOADING)
-        disposables.add(request.invoke(since, size).subscribe(
+        disposables.add(request(since,size).subscribe(
             { users ->
                 setRetryAction(null)
                 callback.onResult(users.filter { user -> user.id <= toUserId })
@@ -58,8 +55,8 @@ class UserDataSource(
     }
 
     override fun loadAfter(params: LoadParams<Long>, callback: LoadCallback<User>) {
-        val since = params.key
         val size = params.requestedLoadSize
+        val since = params.key
 
         if (since > toUserId) {
             callback.onResult(emptyList())
@@ -67,7 +64,7 @@ class UserDataSource(
         }
 
         loadingState?.invoke(NetworkState.LOADING)
-        disposables.add(request.invoke(since, size).subscribe(
+        disposables.add(request(since,size).subscribe(
             { users ->
                 setRetryAction(null)
                 callback.onResult(users.filter { user -> user.id <= toUserId })
@@ -85,4 +82,7 @@ class UserDataSource(
     }
 
     override fun getKey(item: User): Long  = item.id
+
+    private fun request(since: Long, size: Int): Single<List<User>> =
+        repository.getUsersByPage(since, size, query)
 }

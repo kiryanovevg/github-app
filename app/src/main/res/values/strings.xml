@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">Github App</string>
     <string name="base_url">https://api.github.com/</string>
+    <string name="api_token">9f31a82c0a44b5f67e9cdada90f84d3a66ed2353</string>
     <string name="retry">Retry</string>
     <string name="repositories_count">Repos\n%d</string>
     <string name="followers_count">Followers\n%d</string>

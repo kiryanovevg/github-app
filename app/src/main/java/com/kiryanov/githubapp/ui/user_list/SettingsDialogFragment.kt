@@ -10,8 +10,10 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.DialogFragment
 import com.kiryanov.githubapp.R
 import com.kiryanov.githubapp.data.LocalData
+import com.kiryanov.githubapp.di.SHARED_PREFERENCES
 import kotlinx.android.synthetic.main.dialog_settings.view.*
 import org.koin.android.ext.android.inject
+import org.koin.core.qualifier.named
 
 class SettingsDialogFragment : DialogFragment() {
 
@@ -25,7 +27,7 @@ class SettingsDialogFragment : DialogFragment() {
         }
     }
 
-    private val localData: LocalData by inject()
+    private val localData: LocalData by inject(named(SHARED_PREFERENCES))
 
     private var onPositiveButtonClickListener: ClickListener? = null
 

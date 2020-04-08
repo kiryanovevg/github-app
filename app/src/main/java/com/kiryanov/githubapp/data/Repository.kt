@@ -11,13 +11,18 @@ import java.util.concurrent.TimeUnit
 
 class Repository(private val api: Api) {
 
-    fun getUsersByPage(since: Long, perPage: Int): Single<List<User>> = api
+    fun getUsersByPage(since: Long, perPage: Int, query: String): Single<List<User>> = api
         .getUsers(since, perPage)
         .delay(1, TimeUnit.SECONDS)
+        .map { it.filter { user -> user.login.contains(query) || query.contains(user.login)} }
         .subscribeOn(Schedulers.io())
         .observeOn(AndroidSchedulers.mainThread())
 
-    fun getUsers(toUserId: Long): UserDataSource = UserDataSource(this::getUsersByPage, toUserId)
+    fun getUsers(
+        toUserId: Long, query: String
+    ): UserDataSource = UserDataSource(
+        this, toUserId, query
+    )
 
     fun getUserInfo(login: String): Single<UserMore> = Single
         .zip<UserMore, List<Repo>, UserMore>(

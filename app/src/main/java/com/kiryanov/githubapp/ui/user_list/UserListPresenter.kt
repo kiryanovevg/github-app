@@ -2,23 +2,30 @@ package com.kiryanov.githubapp.ui.user_list
 
 import android.os.Handler
 import android.os.Looper
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.paging.PagedList
 import com.arellomobile.mvp.InjectViewState
 import com.kiryanov.githubapp.adapter.NetworkState
 import com.kiryanov.githubapp.data.LocalData
 import com.kiryanov.githubapp.data.Repository
 import com.kiryanov.githubapp.data.UserDataSource
+import com.kiryanov.githubapp.di.REPOSITORY
+import com.kiryanov.githubapp.di.SHARED_PREFERENCES
 import com.kiryanov.githubapp.model.User
 import com.kiryanov.githubapp.mvp.BasePresenter
-import org.koin.standalone.inject
+import org.koin.core.inject
+import org.koin.core.qualifier.named
 
 @InjectViewState
 class UserListPresenter : BasePresenter<UserListView>() {
 
-    private val repository: Repository by inject()
-    private val localData: LocalData by inject()
+    private val repository: Repository by inject(named(REPOSITORY))
+    private val localData: LocalData by inject(named(SHARED_PREFERENCES))
     private val handler = Handler(Looper.getMainLooper())
     private lateinit var dataSource: UserDataSource
+
+    private var query: String? = null
 
     override fun onFirstViewAttach() {
         super.onFirstViewAttach()
@@ -26,7 +33,7 @@ class UserListPresenter : BasePresenter<UserListView>() {
     }
 
     fun loadUsers() {
-        dataSource = repository.getUsers(localData.toUserId)
+        dataSource = repository.getUsers(localData.toUserId, query ?: "")
         unsubscribeOnDestroy(dataSource.disposables)
         handleInitialState()
         handleLoadingState()
@@ -69,5 +76,10 @@ class UserListPresenter : BasePresenter<UserListView>() {
 
     private fun handleLoadingState() {
         dataSource.loadingState = { viewState.setLoadingState(it) }
+    }
+
+    fun setSearchQuery(query: String?) {
+        this.query = query
+        loadUsers()
     }
 }

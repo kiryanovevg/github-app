@@ -11,18 +11,15 @@ import retrofit2.http.Query
 
 interface Api {
 
-    @Headers("Authorization: token 5b4d3d1b92740358f9fba3eb4887729d74f47c93")
     @GET("/users")
     fun getUsers(
         @Query("since") since: Long,
         @Query("per_page") perPage: Int
     ): Single<List<User>>
 
-    @Headers("Authorization: token 5b4d3d1b92740358f9fba3eb4887729d74f47c93")
     @GET("/users/{login}")
     fun getUser(@Path("login") login: String): Single<UserMore>
 
-    @Headers("Authorization: token 5b4d3d1b92740358f9fba3eb4887729d74f47c93")
     @GET("/users/{login}/repos")
     fun getUserRepos(@Path("login") login: String): Single<List<Repo>>
 }

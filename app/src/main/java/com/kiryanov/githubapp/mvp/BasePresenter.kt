@@ -4,7 +4,7 @@ import com.arellomobile.mvp.MvpPresenter
 import com.arellomobile.mvp.MvpView
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
-import org.koin.standalone.KoinComponent
+import org.koin.core.KoinComponent
 
 open class BasePresenter<View : MvpView> : MvpPresenter<View>(), KoinComponent {
 

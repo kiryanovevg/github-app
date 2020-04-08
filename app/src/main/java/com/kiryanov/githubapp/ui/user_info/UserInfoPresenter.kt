@@ -6,7 +6,7 @@ import com.kiryanov.githubapp.model.UserMore
 import com.kiryanov.githubapp.mvp.BasePresenter
 import io.reactivex.SingleObserver
 import io.reactivex.disposables.Disposable
-import org.koin.standalone.inject
+import org.koin.core.inject
 
 @InjectViewState
 class UserInfoPresenter(private val login: String) : BasePresenter<UserInfoView>() {

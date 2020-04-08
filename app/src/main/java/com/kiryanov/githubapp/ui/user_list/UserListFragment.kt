@@ -3,8 +3,9 @@ package com.kiryanov.githubapp.ui.user_list
 import android.os.Bundle
 import android.view.*
 import android.view.animation.AnimationUtils
-import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.widget.SearchView
 import androidx.core.view.ViewCompat
+import androidx.lifecycle.Observer
 import androidx.navigation.fragment.FragmentNavigatorExtras
 import androidx.navigation.fragment.findNavController
 import androidx.paging.PagedList
@@ -95,11 +96,39 @@ class UserListFragment : MvpAppCompatFragment(), UserListView {
                     presenter.loadUsers()
                 }
             }
-        ).show(requireFragmentManager(), "SettingsDialog")
+        ).show(childFragmentManager, "SettingsDialog")
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.menu_user_list, menu)
+
+        val searchItem = menu.findItem(R.id.action_search)
+        val searchView = searchItem.actionView
+        if (searchView is SearchView) {
+            searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+                override fun onQueryTextSubmit(query: String?): Boolean {
+                    presenter.setSearchQuery(query)
+                    return true
+                }
+
+                override fun onQueryTextChange(query: String?): Boolean {
+//                    vm.setSearchQuery(query)
+                    return true
+                }
+            })
+
+            searchItem.setOnActionExpandListener(object : MenuItem.OnActionExpandListener {
+                override fun onMenuItemActionExpand(p0: MenuItem?): Boolean {
+                    return true
+                }
+
+                override fun onMenuItemActionCollapse(p0: MenuItem?): Boolean {
+                    presenter.setSearchQuery(null)
+                    return true
+                }
+            })
+        }
+
         super.onCreateOptionsMenu(menu, inflater)
     }
 

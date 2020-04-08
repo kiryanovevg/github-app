@@ -6,9 +6,11 @@ import com.google.gson.GsonBuilder
 import com.kiryanov.githubapp.data.Api
 import com.kiryanov.githubapp.data.LocalData
 import com.kiryanov.githubapp.data.Repository
+import com.kiryanov.githubapp.data.TokenInterceptor
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
-import org.koin.dsl.module.module
+import org.koin.core.qualifier.named
+import org.koin.dsl.module
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
@@ -23,29 +25,30 @@ const val SHARED_PREFERENCES = "shared_prefs"
 
 fun createMainModule(context: Context) = module {
 
-    single(name = APP_CONTEXT) { context }
+    single(named(APP_CONTEXT)) { context }
 
-    single(name = REPOSITORY) { Repository(get(RETROFIT)) }
+    single(named(REPOSITORY)) { Repository(get(named(RETROFIT))) }
 
-    single(name = SHARED_PREFERENCES) { LocalData(context.getSharedPreferences(SHARED_PREFERENCES, Context.MODE_PRIVATE)) }
+    single(named(SHARED_PREFERENCES)) { LocalData(context.getSharedPreferences(SHARED_PREFERENCES, Context.MODE_PRIVATE)) }
 }
 
-fun createNetworkModule(baseUrl: String) = module {
+fun createNetworkModule(baseUrl: String, token: String) = module {
 
     //HttpClient
-    single(name = HTTP_CLIENT) {
+    single(named(HTTP_CLIENT)) {
         val logging = HttpLoggingInterceptor()
         logging.level = HttpLoggingInterceptor.Level.BODY
 
         OkHttpClient.Builder()
             .addInterceptor(logging)
+            .addInterceptor(TokenInterceptor(token))
             .callTimeout(10, TimeUnit.SECONDS)
             .readTimeout(10, TimeUnit.SECONDS)
             .build()
     }
 
     //Gson
-    single(name = GSON) {
+    single(named(GSON)) {
         GsonBuilder()
             .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
             .create()
@@ -54,12 +57,12 @@ fun createNetworkModule(baseUrl: String) = module {
     }
 
     //Retrofit
-    single(name = RETROFIT) {
+    single(named(RETROFIT)) {
         Retrofit.Builder()
             .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
-            .addConverterFactory(GsonConverterFactory.create(get(GSON)))
+            .addConverterFactory(GsonConverterFactory.create(get(named(GSON))))
             .baseUrl(baseUrl)
-            .client(get(HTTP_CLIENT))
+            .client(get(named(HTTP_CLIENT)))
             .build()
             .create(Api::class.java)
     }
