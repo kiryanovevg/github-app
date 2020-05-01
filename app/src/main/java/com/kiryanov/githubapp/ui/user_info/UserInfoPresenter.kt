@@ -2,16 +2,18 @@ package com.kiryanov.githubapp.ui.user_info
 
 import com.arellomobile.mvp.InjectViewState
 import com.kiryanov.githubapp.data.Repository
+import com.kiryanov.githubapp.di.REPOSITORY
 import com.kiryanov.githubapp.model.UserMore
 import com.kiryanov.githubapp.mvp.BasePresenter
 import io.reactivex.SingleObserver
 import io.reactivex.disposables.Disposable
 import org.koin.core.inject
+import org.koin.core.qualifier.named
 
 @InjectViewState
 class UserInfoPresenter(private val login: String) : BasePresenter<UserInfoView>() {
 
-    private val repository: Repository by inject()
+    private val repository: Repository by inject(named(REPOSITORY))
 
     override fun onFirstViewAttach() {
         super.onFirstViewAttach()
